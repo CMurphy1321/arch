@@ -1,0 +1,249 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{multirow}
+\title{\textbf{Arch Install Instructions}}
+\date{\today}
+\author{Colin Murphy}
+\begin{document}
+
+\clearpage\maketitle
+\maketitle
+
+\section*{Making bootable}
+    If you're running unix system already you can just use the following command
+    (THIS WILL REMOVE ALL DATA FROM SDX):
+    \begin{verbatim} sudo dd if=/path_to_arch_.iso of=/dev/sdX \end{verbatim}
+    Otherwise, use UNetbootin.
+
+\section*{Internet}
+    Ping to make sure you are connected to the internet.
+    \begin{verbatim} ping -c 3 google.com \end{verbatim}
+    If the ping is unsuccessful, try to establish a connection
+    \begin{verbatim} dhcpcd \end{verbatim}
+
+\section*{Partitioning}
+    Choosing between fdisk (MBR) and gdisk (GPT):
+        \begin{itemize}
+            \item If using GRUB legacy as the bootloader, one must use MBR.
+            \item To dual-boot with Windows (both 32-bit and 64-bit) using
+                Legacy BIOS, one must use MBR.
+            \item To dual-boot Windows 64-bit using UEFI instead of BIOS, one
+                must use GPT.
+            \item To dual boot with OS X, it is recommended that you use GPT,
+                unless you plan to triple boot with Windows.
+            \item If none of the above apply, choose freely between GPT and
+                MBR; since GPT is more modern, it is recommended in this case.
+            \item It is recommended to use always GPT for UEFI boot as some
+                UEFI firmwares do not allow UEFI-MBR boot
+        \end{itemize}
+
+\section*{Partition Scheme}
+    The partition scheme you use is a matter of personal preference. The
+    simplest is:
+    \begin{itemize}
+        \item Boot partition
+        \item Swap partition
+        \item Root partition
+    \end{itemize}
+
+    Adding a discrete home partition offers a few notable advantages; This can
+    allow you to change distributions or reinstall while keeping your home
+    folder intact as well as let you share you home folder among multiple
+    installations. On more modern systems, the swap partition is less critical,
+    being used for data overflow from RAM. Inclusion of a swap partition is left
+    to the discretion of the reader. Typical sizes for each type of partition
+    can be seen in Figure \ref{part_sizes}.
+
+    \begin{table}[H]
+        \centering
+        \caption{Typical Partition Sizes}
+        \label{part_sizes}
+        \begin{tabular}{|c|c|} \hline
+            Boot & 200MB \\ \hline
+            Swap & 2GB \\ \hline
+            Root & 8GB \\ \hline
+            Home & Rest of drive \\ \hline
+        \end{tabular}
+    \end{table}
+
+\section*{Creating File Systems}
+    Now that you have your partitions you need to format them. You can leave
+    the boot partition as is but home and root folders need to be ext4. To do
+    this, use the following command where sdx is the drive you've partition and
+    \# is the partition number:
+    \begin{verbatim} mkfs.ext4 /dev/sdx# \end{verbatim}
+    For swap, you just need to mark it as swap and turn it on:
+    \begin{verbatim} mkswap /dev/sdx# && swapon /dev/sdx# \end{verbatim}
+
+\section*{Mount Partitions}
+    Mount you root partition in /mnt:
+    \begin{verbatim} mount /dev/sdx# /mnt \end{verbatim}
+    then make your home directory and mount your home partition:
+    \begin{verbatim} mkdir /mnt/home && mount /dev/sdx# \end{verbatim}
+
+\section*{Installing Base Packages}
+    To make downloading the base quicker, modify /etc/pacman.d/mirrorlist with
+    nano (the default text editor included with arch) by copying the location
+    closest to you at the top. You can search using Ctrl+w, copy using Alt+6
+    and paste using Ctrl+u. Then install the base packages:
+    \begin{verbatim} pacstrap -i /mnt base base-devel \end{verbatim}
+
+\section*{Configuring File Systems Table}
+    Generate an fstab file with the command:
+    \begin{verbatim} genfstab -U -p /mnt >> /mnt/etc/fstab \end{verbatim}
+    Once you have done this you can chroot into the system to configure it:
+    \begin{verbatim} arch-chroot /mnt \end{verbatim}
+
+\section*{Configure Language and Locale}
+    Edit /etc/locale.gen and look for your language and uncomment it. Since you're reading this
+    in English, you probably want en\_US.UTF-8 UTF-8. To finish configuring
+    language and locale, run:
+    \begin{verbatim} locale-gen \end{verbatim}
+    \begin{verbatim} echo LANG=en_US.UTF-8 > /etc/locale.conf \end{verbatim}
+    \begin{verbatim} export LANG=en_US.UTF-8 \end{verbatim}
+
+\section*{Time Zone}
+    If you do not know the name of your sub-time zone you can run the following
+    to see a list of them:
+    \begin{verbatim} ls /usr/share/zoneinfo/ \end{verbatim}
+    Next, symbolically link your sub-time zone to localtime and configure the
+    hardware clock:
+    \begin{verbatim} ln -s /usr/share/zoneinfo/America/New_York> /etc/localtime \end {verbatim}
+    \begin{verbatim} hwclock --systohc --utc \end {verbatim}
+
+\section*{Hostname}
+    Making your hostname is simple; just run:
+    \begin{verbatim} echo your_hostname > /etc/hostname \end{verbatim}
+
+\section*{Configuring Multilib}
+    If you are running a 64-bit system you should include the multilib
+    repository for pacman. This will add some libraries 32-bit applications may
+    need to run on your system. In /etc/pacman.conf, uncomment:
+    \begin{verbatim} [multilib] \end{verbatim}
+    \begin{verbatim} Include = /etc/pacman.d/mirrorlist \end{verbatim}
+    Then run the following to update your package list:
+    \begin{verbatim} pacman -Sy \end{verbatim}
+
+\section*{Users}
+    You should definitely set the passsword for root which you can do using:
+    \begin{verbatim} passwd \end{verbatim}
+    Next you can add users:
+    \begin{verbatim} useradd -m -g users -G wheel,storage,power -s /bin/bash your_username \end{verbatim}
+    Then make the password for a user:
+    \begin{verbatim} passwd user_name \end{verbatim}
+    Install sudo and bash-completion:
+    \begin{verbatim} pacman -S sudo bash-completion \end{verbatim}
+    In order to allow users in wheel to use sudo:
+    \begin{verbatim} EDITOR=nano visudo \end{verbatim}
+    Then uncomment:
+    \begin{verbatim} %wheel ALL=(ALL) ALL \end{verbatim}
+
+\section*{Installing GRUB}
+    Install grub and os-prober (os-prober is useful is you have multiple OSes):
+    \begin{verbatim} pacman -S grub os-prober \end{verbatim}
+    \begin{verbatim} grub-install --target=i386-pc --recheck /dev/sdx \end{verbatim}
+    If you do have multiple OSes, run the following to update your grub
+    configuration:
+    \begin{verbatim} grub-mkconfig -o /boot/grub/grub.cfg \end{verbatim}
+
+\section*{Enable Network}
+    Find the name of your LAN adapter which will be listed in:
+    \begin{verbatim} ip link \end{verbatim}
+    Then enable it so it will start on startup:
+    \begin{verbatim} systemctl enable dhcpcd@name_of_interface.service
+    \end{verbatim}
+
+\section*{Unmount and reboot}
+    Now you can exit, unmout and reboot:
+    \begin{verbatim} exit \end{verbatim}
+    \begin{verbatim} umount -R /mnt \end{verbatim}
+    \begin{verbatim} reboot \end{verbatim}
+    Depending on your boot order, you may want to remove the USB so you boot
+    into your new system rather than the USB.
+
+\section*{Install X}
+    Now we need to install X:
+    \begin{verbatim} pacman -S xorg-server xorg-server-utils xorg-xinit mesa \end{verbatim}
+    Then install the appropriate graphics drivers. This can get hairy and you
+    will probably have to do some research to find the correct ones. Running
+    the following can help when trying to determine which drivers you need,
+    especially if you aren't sure what kind of graphics card you have:
+    \begin{verbatim} lspci | grep VGA \end{verbatim}
+    A few common devices are listed in Table \ref{graphics_drivers} along with
+    the driver associated with them as well as the multilib package.
+
+    \begin{table}[H]
+        \centering
+        \caption{Common Graphics Devices}
+        \label{graphics_drivers}
+        \begin{tabular}{|c|c|c|c|} \hline
+            Device & Type & Driver & Multilib Driver \\ \hline
+            AMD/ATI & Open Source & xf86-video-ati & lib32-ati-dri \\ \cline{2-4}
+             & Proprietary & catalyst-dkms & lib32-catalyst-utils \\ \cline{2-4} \hline
+
+            Intel & Open Source & xf86-video-intel & lib32-intel-dri \\ \cline{2-4} \hline
+
+            & Open Source & xf86-video-nouveau & lib32-nouveau-dri \\ \cline{3-4}
+                    & & xf86-video-nv & -------- \\ \cline{2-4}
+
+            Nvidia & & nvidia & lib32-nvidia-libgl \\ \cline{3-4}
+            & Proprietary & nvidia-304xx & lib32-nvidia-304xx-utils \\ \cline{3-4}
+            & & nvidia-173xx & lib32-nvidia-173xx-utils \\ \cline{3-4}
+            & & nvidia-96xx & lib32-nvidia-96xx-utils \\ \cline{3-4} \hline
+            VIA & Open Source & xf86-video-openchrome & -------- \\ \hline
+        \end{tabular}
+    \end{table}
+
+    If you are using a laptop you can install the synaptics package that lets
+    you use input devices like your track pad:
+    \begin{verbatim} pacman -S xf86-input-synaptics \end{verbatim}
+    Let's finish installing X and test it to make sure it's working:
+    \begin{verbatim} pacman -S xorg-twm xorg-xclock xterm \end{verbatim}
+    \begin{verbatim} startx \end{verbatim}
+    You should see a few terminal windows an a clock. Type exit to exit.
+
+\section*{Desktop Environment}
+    Choosing a desktop environment is completely up to each user to decide
+    for themselves; I personally like Cinnamon so I will be using that as an
+    example.
+
+    First, install the desktop manager associated with your prefered
+    environment. In my case this is gdm. I then install the Cinnamon desktop
+    environment.
+    \begin{verbatim} sudo pacman -S gdm \end{verbatim}
+    \begin{verbatim} sudo pacman -S cinnamon \end{verbatim}
+    It's a good idea to test the manager and environment before enabling them
+    using systemcl:
+    \begin{verbatim} sudo systemctl start gdm \end{verbatim}
+    If you have no issues you should see a login screen in your selected dektop
+    manager. If that went well, enable it on startup:
+    \begin{verbatim} sudo systemctl enable gdm \end{verbatim}
+
+\section*{Network Manager}
+    One final thing to configure is your network manager:
+    \begin{verbatim} sudo systemctl enable NetworkManager \end{verbatim}
+    \begin{verbatim} sudo systemctl start NetworkManager \end{verbatim}
+    If you have issues upon rebooting, you can try the following command then
+    reboot:
+    \begin{verbatim} systemctl disable dhcpcd.service \end{verbatim}
+
+\section*{AUR}
+    As a final note I would like to quickly mention how to install packages
+    from the Arch Unofficial Repositories which has a huge variety of software
+    not available in the official repositories. It is a great resources and
+    very well supported.
+    As an example I will use google chrome. Once you have found the page on the
+    AUR, click "Download tarball". Navigate to where the tarball downloaded
+    then run:
+    \begin{verbatim} tar -xvf google-chrome.tar.gz \end{verbatim}
+    This will create a folder called google-chrome. Go into that folder and
+    type:
+    \begin{verbatim} makepkg \end{verbatim}
+    You may run into dependancies so if you do just instal those through
+    pacman. Otherwise you should see a file in that folder with a .tar.xz file
+    extension. To install the pacman, just type:
+    \begin{verbatim} sudo pacman -U google-chrome-39.0.2171.95-1-x86_64.pkg.tar.xz \end{verbatim}
+
+\end{document}
