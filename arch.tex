@@ -58,13 +58,13 @@
         \item Root partition
     \end{itemize}
 
-    \noindent Adding a discrete home partition offers a few notable advantages; This can
-    allow you to change distributions or reinstall while keeping your home
-    folder intact as well as let you share you home folder among multiple
+    \noindent Adding a discrete home partition offers a few notable advantages;
+    This can allow you to change distributions or reinstall while keeping your
+    home folder intact as well as let you share you home folder among multiple
     installations. On more modern systems, the swap partition is less critical,
-    being used for data overflow from RAM. Inclusion of a swap partition is left
-    to the discretion of the reader. Typical sizes for each type of partition
-    can be seen in Figure \ref{part_sizes}.
+    being used for data overflow from RAM. Inclusion of a swap partition is
+    left to the discretion of the reader. Typical sizes for each type of
+    partition can be seen in Figure \ref{part_sizes}.
 
     \begin{table}[H]
         \centering
@@ -107,9 +107,9 @@
     \begin{verbatim} arch-chroot /mnt \end{verbatim}
 
 \section*{Configure Language and Locale}
-    Edit /etc/locale.gen and look for your language and uncomment it. Since you're reading this
-    in English, you probably want en\_US.UTF-8 UTF-8. To finish configuring
-    language and locale, run:
+    Edit /etc/locale.gen and look for your language and uncomment it. Since
+    you're reading this in English, you probably want en\_US.UTF-8 UTF-8. To
+    finish configuring language and locale, run:
     \begin{verbatim} locale-gen \end{verbatim}
     \begin{verbatim} echo LANG=en_US.UTF-8 > /etc/locale.conf \end{verbatim}
     \begin{verbatim} export LANG=en_US.UTF-8 \end{verbatim}
@@ -253,7 +253,7 @@
     \begin{verbatim} makepkg \end{verbatim}
     You may run into dependancies so if you do just install those through
     pacman. Otherwise you should see a file in that folder with a .tar.xz file
-    extension. To install the pacman, just type:
+    extension. To install the package, just type:
     \begin{verbatim} sudo pacman -U google-chrome-39.0.2171.95-1-x86_64.pkg.tar.xz \end{verbatim}
 
   \section*{Yaourt}
@@ -276,6 +276,5 @@
     To use yaourt simply type
     \begin{verbatim}yaourt <package name>\end{verbatim}
     Otherwise the syntax is the same as pacman.
-
 
 \end{document}
