@@ -256,4 +256,26 @@
     extension. To install the pacman, just type:
     \begin{verbatim} sudo pacman -U google-chrome-39.0.2171.95-1-x86_64.pkg.tar.xz \end{verbatim}
 
+  \section*{Yaourt}
+    You can also use a wrapper such as yaourt to handle the installation of AUR
+    packages. Wrappers such as this handle dependancies.
+    To install Yaourt you must first install package-query. This is done using
+    the meathod described above.
+
+    \begin{verbatim}curl -O https://aur.archlinux.org/packages/pa/package-query/package-query.tar.gz\end{verbatim}
+    \begin{verbatim}tar zxvf package-query.tar.gz\end{verbatim}
+    \begin{verbatim}cd package-query\end{verbatim}
+    \begin{verbatim}makepkg -si\end{verbatim}
+
+    Then install yaourt
+    \begin{verbatim}curl -O https://aur.archlinux.org/packages/ya/yaourt/yaourt.tar.gz\end{verbatim}
+    \begin{verbatim}tar zxvf yaourt.tar.gz\end{verbatim}
+    \begin{verbatim}cd yaourt\end{verbatim}
+    \begin{verbatim}makepkg -si \end{verbatim}
+
+    To use yaourt simply type
+    \begin{verbatim}yaourt <package name>\end{verbatim}
+    Otherwise the syntax is the same as pacman.
+
+
 \end{document}
