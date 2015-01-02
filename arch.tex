@@ -166,7 +166,7 @@
     \end{verbatim}
 
 \section*{Unmount and reboot}
-    Now you can exit, unmout and reboot:
+    Now you can exit, unmount and reboot:
     \begin{verbatim} exit \end{verbatim}
     \begin{verbatim} umount -R /mnt \end{verbatim}
     \begin{verbatim} reboot \end{verbatim}
@@ -212,14 +212,14 @@
     Let's finish installing X and test it to make sure it's working:
     \begin{verbatim} pacman -S xorg-twm xorg-xclock xterm \end{verbatim}
     \begin{verbatim} startx \end{verbatim}
-    You should see a few terminal windows an a clock. Type exit to exit.
+    You should see a few terminal windows and a clock. Type exit to exit.
 
 \section*{Desktop Environment}
     Choosing a desktop environment is completely up to each user to decide
     for themselves; I personally like Cinnamon so I will be using that as an
     example.
 
-    First, install the desktop manager associated with your prefered
+    First, install the desktop manager associated with your preferred
     environment. In my case this is gdm. I then install the Cinnamon desktop
     environment.
     \begin{verbatim} sudo pacman -S gdm \end{verbatim}
@@ -227,7 +227,7 @@
     It's a good idea to test the manager and environment before enabling them
     using systemcl:
     \begin{verbatim} sudo systemctl start gdm \end{verbatim}
-    If you have no issues you should see a login screen in your selected dektop
+    If you have no issues you should see a login screen in your selected desktop
     manager. If that went well, enable it on startup:
     \begin{verbatim} sudo systemctl enable gdm \end{verbatim}
 
@@ -251,16 +251,16 @@
     This will create a folder called google-chrome. Go into that folder and
     type:
     \begin{verbatim} makepkg \end{verbatim}
-    You may run into dependancies so if you do just install those through
+    You may run into dependencies so if you do just install those through
     pacman. Otherwise you should see a file in that folder with a .tar.xz file
     extension. To install the package, just type:
     \begin{verbatim} sudo pacman -U google-chrome-39.0.2171.95-1-x86_64.pkg.tar.xz \end{verbatim}
 
   \section*{Yaourt}
     You can also use a wrapper such as yaourt to handle the installation of AUR
-    packages. Wrappers such as this handle dependancies.
+    packages. Wrappers such as this handle dependencies.
     To install Yaourt you must first install package-query. This is done using
-    the meathod described above.
+    the method described above.
 
     \begin{verbatim}curl -O https://aur.archlinux.org/packages/pa/package-query/package-query.tar.gz\end{verbatim}
     \begin{verbatim}tar zxvf package-query.tar.gz\end{verbatim}
